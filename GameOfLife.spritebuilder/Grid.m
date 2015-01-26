@@ -57,7 +57,7 @@ static const int GRID_COLUMNS = 10;
             _gridArray[i][j] = creature;
             
             // make creatures visible to test this method, remove this once we know we have filled the grid properly
-            creature.isAlive = YES;
+            //creature.isAlive = YES;
             
             x+=_cellWidth;
         }
@@ -66,8 +66,40 @@ static const int GRID_COLUMNS = 10;
     }
 }
 
+- (void)touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
+{
+    //get the x,y coordinates of the touch
+    CGPoint touchLocation = [touch locationInNode:self.scene];
+    
+    //get the Creature at that location
+    Creature *creature = [self creatureForTouchPosition:touchLocation];
+    
+    //invert it's state - kill it if it's alive, bring it to life if it's dead.
+    creature.isAlive = !creature.isAlive;
+}
+
+- (Creature *)creatureForTouchPosition:(CGPoint)touchPosition
+{
+    int row = touchPosition.y;
+    int column = touchPosition.x;
+    
+    //get the row and column that was touched, return the Creature inside the corresponding cell
+    return _gridArray[row][column];
+}
 
 - (void) evolveStep
+{
+    //update each Creature's neighbor count
+    [self countNeighbors];
+    
+    //update each Creature's state
+    [self updateCreatures];
+    
+    //update the generation so the label's text will display the correct generation
+    _generation++;
+}
+
+- (void) countNeighbors
 {
     // iterate through the rows
     // note that NSArray has a method 'count' that will return the number of elements in the array
@@ -117,6 +149,28 @@ static const int GRID_COLUMNS = 10;
         isIndexValid = NO;
     }
     return isIndexValid;
+}
+
+- (void) updateCreatures
+{
+    // iterate through the rows
+    // note that NSArray has a method 'count' that will return the number of elements in the array
+    for (int i = 0; i < [_gridArray count]; i++)
+    {
+        // iterate through all the columns for a given row
+        for (int j = 0; j < [_gridArray[i] count]; j++)
+        {
+            // access the creature in the cell that corresponds to the current row/column
+            Creature *currentCreature = _gridArray[i][j];
+            
+            if (currentCreature.livingNeighbors == 3) {
+                currentCreature.isAlive = YES;
+            }
+            else if (currentCreature.livingNeighbors <= 1 || currentCreature.livingNeighbors >= 4) {
+                currentCreature.isAlive = NO;
+            }
+        }
+    }
 }
 
 @end
