@@ -1332,7 +1332,7 @@
 								<key>customClass</key>
 								<string></string>
 								<key>displayName</key>
-								<string>Grid</string>
+								<string>CCButton</string>
 								<key>memberVarAssignmentName</key>
 								<string></string>
 								<key>memberVarAssignmentType</key>
